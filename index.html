@@ -107,16 +107,22 @@ body{
 .close{position:sticky;float:right;top:-14px;margin:-18px -10px 0 0;width:34px;height:34px;border-radius:50%;border:none;background:var(--pink);color:#fff;font-size:1.1rem;cursor:pointer}
 .confetti{position:fixed;top:-12px;width:10px;height:14px;z-index:20;pointer-events:none;animation:fall linear forwards}
 @keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+.music{position:fixed;top:max(14px,env(safe-area-inset-top));right:14px;z-index:15;width:42px;height:42px;border-radius:50%;border:3px solid var(--line);background:var(--card);font-size:1.1rem;cursor:pointer;box-shadow:0 4px 12px rgba(138,90,59,.18);display:none}
+.music.show{display:block}
+.music.on{animation:spin 4s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
 @media (max-width:420px){.stage{min-height:310px}.cat{right:-14px}}
 </style>
 </head>
 <body>
 
 <div class="balloons" id="balloons"></div>
+<audio id="bgm" src="best-part.mp3" loop preload="auto"></audio>
+<button class="music" id="music" aria-label="เปิด/ปิดเพลง">🎵</button>
 
 <main class="card">
   <h1 class="title" id="title" aria-label="Happy Birthday"></h1>
-  <p class="to">รริร 🎈</p>
+  <p class="to">🍰</p>
   <p class="from">จาก <b>เป็ดพะโล้</b> 🦆</p>
 
   <div class="stage">
@@ -172,11 +178,17 @@ function confetti(n=60){const c=['#f2b8b5','#e8928f','#d9a679','#f3dfae','#fff',
     e.style.left=Math.random()*100+'vw';e.style.background=c[i%c.length];
     e.style.animationDuration=(2+Math.random()*2.5)+'s';e.style.animationDelay=Math.random()*.6+'s';
     e.style.borderRadius=Math.random()>.5?'50%':'2px';document.body.appendChild(e);setTimeout(()=>e.remove(),5500)}}
+// music
+const bgm=document.getElementById('bgm'),mBtn=document.getElementById('music');
+bgm.volume=0.25;let musicOn=false;
+bgm.addEventListener('error',()=>{mBtn.classList.remove('show')});
+function playMusic(){bgm.play().then(()=>{musicOn=true;mBtn.classList.add('show','on');mBtn.textContent='🎵'}).catch(()=>{})}
+mBtn.onclick=()=>{if(musicOn){bgm.pause();musicOn=false;mBtn.classList.remove('on');mBtn.textContent='🔇'}else{playMusic()}};
 // flow
 const cakeBtn=document.getElementById('cakeBtn'),env=document.getElementById('env'),
       hint=document.getElementById('hint'),ov=document.getElementById('overlay');
 cakeBtn.onclick=()=>{
-  cakeBtn.style.display='none';env.classList.add('show');
+  cakeBtn.style.display='none';env.classList.add('show');playMusic();
   hint.textContent='มีซองจดหมายด้วย! แตะอีกทีเพื่อเปิด 💌';confetti(40);
 };
 function openEnv(){
